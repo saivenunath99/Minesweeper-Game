@@ -1,0 +1,283 @@
+#include<stdlib.h>
+#include<string.h>//for using memeset function;
+#include<time.h>
+#define maxmines 99
+#define movesides 526
+#define maxside 25
+int side;
+int MINE;
+//to check whether the coordinates are valid for further used
+int isvalid(int row,int column)
+{
+        return(row>=0&&row<side&&column>=0&&column<side);
+}
+//to check a mine
+int ismine(int row,int column,char board[][maxside])
+{
+        if(board[row][column]=='*')
+                return 1;
+        else
+                return 0;
+}
+// print the board
+void printboard(char myboard[][maxside])
+{
+        int i,j;
+        printf("     ");
+        for(int i=0;i<side;i++)
+                printf("%d   ",i);
+        printf("\n\n");
+        for(int i=0;i<side;i++)
+        {
+ printf("%d   ",i);
+                for(j=0;j<side;j++)
+                        printf("%c   ",myboard[i][j]);
+                printf("\n");
+        }
+
+}
+//to count number of mines
+int countmines(int row,int col,int mines[][2],char realboard[][maxside])
+{
+        int i,count=0;
+        if(isvalid(row-1,col)==1)
+        {
+                if(ismine(row-1,col,realboard)==1)
+                        count++;
+        }
+        if(isvalid(row+1,col)==1)
+                 if(ismine(row+1,col,realboard)==1)
+                         count++;
+        if(isvalid(row,col+1)==1)
+                if(ismine(row,col+1,realboard)==1)
+                        count++;
+        if(isvalid(row,col-1)==1)
+                if(ismine(row,col-1,realboard)==1)
+                        count++;
+        if(isvalid(row-1,col+1)==1)
+                if(ismine(row,col+1,realboard)==1)
+                        count++;
+        if(isvalid(row-1,col-1)==1)
+                if(ismine(row-1,col-1,realboard)==1)
+                        count++;if(isvalid(row+1,col+1)==1)
+                if(ismine(row+1,col+1,realboard)==1)
+                        count++;
+        if(isvalid(row+1,col-1)==1)
+                if(ismine(row+1,col-1,realboard)==1)
+                        count++;
+        return count;
+}
+//to play game
+int playminesweeper(char myboard[][maxside],char realboard[][maxside],int mines[][2],int row,int col,int *movesleft){
+
+        if(myboard[row][col]!='-')
+                return 0;
+                int i,j;
+        if(realboard[row][col]=='*')
+                {
+                        myboard[row][col]='*';
+                        for(i=0;i<MINE;i++)
+                                myboard[mines[i][0]][mines[i][1]]='*';
+                        printboard(myboard);
+                        printf("you lost\n");
+                        return 1;
+                }
+        else
+        {int count=countmines(row,col,mines,realboard);
+                (*movesleft)--;
+                myboard[row][col]=count+'0';
+                if(!count)
+                {
+                        if(isvalid(row-1,col)==1)
+                        {
+                                if(ismine(row-1,col,realboard)==0) {
+                                        playminesweeper(myboard,realboard,mines,row-1,col,movesleft);
+                                }
+                        }
+                        if(isvalid(row+1,col)==1)
+                        {
+                                if(ismine(row+1,col,realboard)==0)
+                                {
+                                        playminesweeper(myboard,realboard,mines,row+1,col,movesleft);
+                                }
+                        }
+                        if(isvalid(row,col+1)==1)
+                        {
+                                if(ismine(row,col+1,realboard)==0)
+                                {
+                                        playminesweeper(myboard,realboard,mines,row,col+1,movesleft);
+
+                                }
+                        }
+                        if(isvalid(row,col-1)==1)
+                        {
+                                if(ismine(row,col-1,realboard)==0)
+                                {
+                                        playminesweeper(myboard,realboard,mines,row,col-1,movesleft);
+                                }
+                        }
+                        if(isvalid(row-1,col+1)==1)
+                        {
+                                if(ismine(row-1,col+1,realboard)==0)
+                                {
+                                        playminesweeper(myboard,realboard,mines,row-1,col+1,movesleft);
+                                }
+}
+                        if(isvalid(row-1,col-1)==1)
+                        {
+                                if(ismine(row-1,col-1,realboard)==0)
+                                {
+                                        playminesweeper(myboard,realboard,mines,row-1,col-1,movesleft);
+                                }
+                        }
+                        if(isvalid(row+1,col+1)==1)
+                        {
+                                if(ismine(row+1,col+1,realboard)==0)
+                                {
+                                        playminesweeper(myboard,realboard,mines,row+1,col+1,movesleft);
+                                }
+                        }
+                        if(isvalid(row+1,col-1)==1)
+                        {
+                                if(ismine(row+1,col-1,realboard)==0)
+                                {
+                                        playminesweeper(myboard,realboard,mines,row+1,col-1,movesleft);
+                                }
+                        }
+
+                }
+
+                 return 0;
+
+        }
+}
+//to plACE MINES
+void placemines(int mine[][2],char realboard[][maxside])
+{
+  int mark[maxside*maxside];
+        srand(time(NULL));
+        int *first,*second;
+        memset(mark,0,maxside*maxside);
+        for(int i=0;i<MINE;)
+        {
+                int random=rand()%(side*side);
+                int x=random/side;
+                int y=random%side;
+                if(mark[random]==0)
+                {
+                        mine[i][0]=x;
+                        mine[i][1]=y;
+                        realboard[mine[i][0]][mine[i][1]]='*';
+                        mark[random]=1;
+                        i++;
+                }
+                //*first=x;
+                //*second=y;
+        }
+        return;
+}
+//TO INTIALISE BOARD TO '-'
+void initalise(char realboard[][maxside],char myboard[][maxside])
+{
+        for(int i=0;i<side;i++)
+        {
+                for(int j=0;j<side;j++)
+                        myboard[i][j]=realboard[i][j]='-';
+        }
+        return;
+}
+//IF THE MINE
+void replacemine(int row,int col,char board[][maxside])
+{
+        for(int i=0;i<side;i++)
+        {
+                for(int j=0;j<side;j++)
+                {
+                        if(board[i][j]!='*')
+                        {
+                                board[i][j]='*';
+                                board[row][col]='-';
+                                return;
+                        }
+                }
+        }
+        return;
+}
+void play()
+{
+        int game=0;
+        char realboard[maxside][maxside],myboard[maxside][maxside];
+        int moves=side*side-MINE;
+        int mines[maxmines][2];
+        //positions;
+        int x,y;
+        initalise(realboard,myboard);
+        placemines(mines,realboard);
+        //print();
+        int now=0;
+s:
+        while(game==0)
+        {
+ printboard(myboard);
+                printf("enter your position co-ordinates\n");
+                scanf("%d%d",&x,&y);
+        //      makemove()
+                if(x>=side||y>=side)
+                {
+                        printf("your values are invalid...!\n");
+                        goto s;
+                }
+                if(now==0)
+                {
+                        if(ismine(x,y,realboard)==1)
+                                replacemine(x,y,realboard);
+                }
+                now++;
+                game=playminesweeper(myboard,realboard,mines,x,y,&moves);
+        if((game==0)&&(moves==0))
+        {
+                printf("you won..!");
+                game=1;
+        }
+
+        }
+        return;
+}
+/*print()
+{
+for(int i=0;i<side;i++)
+        {
+                for(int j=0;j<side;j++)
+                {
+                        if(ismine(i,j,realboard)==1)      printf("*");
+                }
+        }
+}*/
+void difficulty(int level)
+{
+        if(level==1)
+        {
+                side=9;
+                MINE=10;
+        }
+        if(level==2)
+        {
+                side=15;
+                MINE=44;
+        }
+        if(level==3)
+        {
+                side=25;
+                MINE=98;
+        }
+}
+//char myboard[side][side],realboard[side][side];
+int main()
+{
+        int n;
+        printf("enter level you want to play..\n1.easy\n2.medium\n3.hard");
+        scanf("%d",&n);
+        difficulty(n);
+        play();
+        return 0;
+}
